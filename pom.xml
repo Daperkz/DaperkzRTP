@@ -17,8 +17,8 @@
 
     <repositories>
         <repository>
-            <id>papermc</id>
-            <url>https://repo.papermc.io/repository/maven-public/</url>
+            <id>purpurmc</id>
+            <url>https://repo.purpurmc.org/snapshots</url>
         </repository>
     </repositories>
 
