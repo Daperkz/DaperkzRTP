@@ -46,11 +46,11 @@ public class RTPCommand implements CommandExecutor, TabCompleter {
 
         if (args.length > 0 && args[0].equalsIgnoreCase("reload")) {
             if (!sender.hasPermission("MousseSMP.rtp.admin")) {
-                sender.sendMessage(cfg.getPrefixedMessage("no-permission"));
+                sender.sendMessage(plugin.getLanguageManager().getPrefixedMessage("no-permission"));
                 return true;
             }
             plugin.reloadPluginConfig();
-            sender.sendMessage(cfg.getPrefixedMessage("reload-success"));
+            sender.sendMessage(plugin.getLanguageManager().getPrefixedMessage("reload-success"));
             return true;
         }
 
@@ -63,7 +63,7 @@ public class RTPCommand implements CommandExecutor, TabCompleter {
         };
 
         if (bounds == null) {
-            player.sendMessage(cfg.getPrefixedMessage("unknown-world"));
+            player.sendMessage(plugin.getLanguageManager().getPrefixedMessage("unknown-world"));
             return true;
         }
 

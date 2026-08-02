@@ -10,6 +10,7 @@ package com.daperkz.rtp.manager;
 
 import com.daperkz.rtp.RTPPlugin;
 import com.daperkz.rtp.config.ConfigManager;
+import com.daperkz.rtp.config.LanguageManager;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
@@ -42,10 +43,11 @@ public class RTPManager {
 
     public void processRTP(Player player, ConfigManager.WorldBounds bounds) {
         ConfigManager cfg = plugin.getConfigManager();
+        LanguageManager lang = plugin.getLanguageManager();
         CooldownManager cd = plugin.getCooldownManager();
 
         if (!bounds.enabled()) {
-            player.sendMessage(cfg.getPrefixedMessage("world-disabled"));
+            player.sendMessage(lang.getPrefixedMessage("world-disabled"));
             return;
         }
 
@@ -59,13 +61,13 @@ public class RTPManager {
         }
 
         if (cd.isTeleporting(player.getUniqueId())) {
-            player.sendMessage(cfg.getPrefixedMessage("already-teleporting"));
+            player.sendMessage(lang.getPrefixedMessage("already-teleporting"));
             return;
         }
 
         World world = Bukkit.getWorld(bounds.worldName());
         if (world == null) {
-            player.sendMessage(cfg.getPrefixedMessage("world-not-found"));
+            player.sendMessage(lang.getPrefixedMessage("world-not-found"));
             return;
         }
 
@@ -162,6 +164,7 @@ public class RTPManager {
 
     private void startWarmup(Player player, Location targetLoc) {
         ConfigManager cfg = plugin.getConfigManager();
+        LanguageManager lang = plugin.getLanguageManager();
         CooldownManager cd = plugin.getCooldownManager();
         Location initialLoc = player.getLocation().clone();
 
@@ -177,8 +180,8 @@ public class RTPManager {
                 }
 
                 if (player.getLocation().distanceSquared(initialLoc) > Math.pow(cfg.getMoveCancelDistance(), 2)) {
-                    player.sendMessage(cfg.getPrefixedMessage("cancel-moved"));
-                    player.sendActionBar(cfg.getMessage("cancel-actionbar"));
+                    player.sendMessage(lang.getPrefixedMessage("cancel-moved"));
+                    player.sendActionBar(lang.getMessage("cancel-actionbar"));
                     cd.setTeleporting(player.getUniqueId(), false);
                     cancel();
                     return;
@@ -187,8 +190,8 @@ public class RTPManager {
                 if (countdown <= 0) {
                     player.teleportAsync(targetLoc).thenAccept(success -> {
                         if (success) {
-                            player.sendActionBar(cfg.getMessage("success-actionbar"));
-                            player.sendMessage(cfg.getPrefixedMessage("success-message"));
+                            player.sendActionBar(lang.getMessage("success-actionbar"));
+                            player.sendMessage(lang.getPrefixedMessage("success-message"));
                             player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1.0f, 1.0f);
                             cd.setCooldown(player.getUniqueId());
                         }
@@ -199,7 +202,7 @@ public class RTPManager {
                 }
 
                 player.sendActionBar(mm.deserialize(
-                        cfg.getConfig().getString("messages.warmup-actionbar", "").replace("<seconds>", String.valueOf(countdown))
+                        lang.getRawMessage("warmup-actionbar").replace("<seconds>", String.valueOf(countdown))
                 ));
 
                 countdown--;

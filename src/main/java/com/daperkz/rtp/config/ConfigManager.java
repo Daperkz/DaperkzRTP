@@ -64,29 +64,15 @@ public class ConfigManager {
         return getConfig().getInt("max-location-attempts", 80);
     }
 
-    public Component getPrefixedMessage(String key) {
-        String prefix = getConfig().getString("messages.prefix", "");
-        String msg = getConfig().getString("messages." + key, "");
-        return miniMessage.deserialize(prefix + msg);
-    }
-
-    public Component getMessage(String key) {
-        String msg = getConfig().getString("messages." + key, "");
-        return miniMessage.deserialize(msg);
-    }
-
     public Component getGuiTitle() {
         return miniMessage.deserialize(getConfig().getString("gui.title", "<blue>RTP</blue>"));
     }
-
     public int getGuiRows() {
         return Math.min(6, Math.max(1, getConfig().getInt("gui.rows", 3)));
     }
-
     public boolean isFillEmpty() {
         return getConfig().getBoolean("gui.fill-empty", true);
     }
-
     public Material getFillMaterial() {
         Material mat = Material.matchMaterial(getConfig().getString("gui.fill-item", "GRAY_STAINED_GLASS_PANE"));
         return mat != null ? mat : Material.GRAY_STAINED_GLASS_PANE;

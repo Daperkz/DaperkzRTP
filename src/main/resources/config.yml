@@ -8,6 +8,7 @@
 # --------------------------------------------------
 # CONFIGURATION GÉNÉRALE
 # --------------------------------------------------
+language: "fr"
 cooldown-seconds: 30
 countdown-seconds: 3
 move-cancel-distance: 1.0

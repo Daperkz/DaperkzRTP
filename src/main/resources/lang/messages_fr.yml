@@ -1,0 +1,22 @@
+# ==============================================================================
+# MousseRTP - Java Minecraft Plugin
+# Copyright (c) 2026 Daperkz
+#
+# messages_fr
+# ==============================================================================
+
+prefix: "<gray>[<blue>RTP</blue>] <dark_gray>» "
+unknown-world: "<red>Monde inconnu. Utilise: /rtp [overworld|nether|end]"
+world-disabled: "<red>Le RTP est désactivé dans cette dimension."
+world-not-found: "<red>Le monde ciblé n'est pas chargé sur le serveur."
+already-teleporting: "<red>Vous êtes déjà en cours de téléportation !"
+cooldown: "<red>Vous devez attendre <yellow><time>s</yellow> avant de réutiliser /rtp !"
+start-warmup: "<gray>Téléportation dans <yellow><seconds> secondes</yellow>... Ne bougez pas !"
+warmup-actionbar: "<yellow>Téléportation dans <seconds>s..."
+cancel-moved: "<red>Vous avez trop bougé, téléportation annulée."
+cancel-actionbar: "<red>Téléportation annulée !"
+success-actionbar: "<green>Téléporté !"
+success-message: "<gray>Téléportation réussie !"
+failed-find-location: "<red>Impossible de trouver un endroit sûr après <attempts> essais !"
+no-permission: "<red>Vous n'avez pas la permission d'exécuter cette commande."
+reload-success: "<green>Configuration et messages rechargés avec succès !"
