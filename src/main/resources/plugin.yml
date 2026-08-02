@@ -1,0 +1,20 @@
+name: MousseRTP
+version: '${project.version}'
+main: com.daperkz.rtp.RTPPlugin
+api-version: '1.20'
+author: Daperkz
+description: High performance asynchronous RTP plugin.
+
+permissions:
+  Daperkz.rtp:
+    description: Permission d'utiliser /rtp
+    default: true
+  Daperkz.rtp.admin:
+    description: Permission de recharger le plugin
+    default: op
+
+commands:
+  rtp:
+    description: Téléporte le joueur à un endroit aléatoire sécurisé.
+    permission: Daperkz.rtp
+    permission-message: "<red>Tu n'as pas la permission d'utiliser cette commande."

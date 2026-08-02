@@ -1,0 +1,81 @@
+# --------------------------------------------------
+# CONFIGURATION GÉNÉRALE
+# --------------------------------------------------
+cooldown-seconds: 30
+countdown-seconds: 3
+move-cancel-distance: 1.0
+max-location-attempts: 80
+
+# --------------------------------------------------
+# CONFIGURATION DES DIMENSIONS
+# --------------------------------------------------
+dimensions:
+  overworld:
+    enabled: true
+    world-name: "MousseSMP"
+    min-x: -10000
+    max-x: 10000
+    min-z: -10000
+    max-z: 10000
+  nether:
+    enabled: true
+    world-name: "MousseSMP_nether"
+    min-x: -2500
+    max-x: 2500
+    min-z: -2500
+    max-z: 2500
+  end:
+    enabled: true
+    world-name: "MousseSMP_the_end"
+    min-x: -5000
+    max-x: 5000
+    min-z: -5000
+    max-z: 5000
+
+
+gui:
+  title: "<blue><b>RANDOM TELEPORT</b></blue>"
+  rows: 3
+  fill-empty: false
+  fill-item: GRAY_STAINED_GLASS_PANE
+  items:
+    overworld:
+      slot: 11
+      material: GRASS_BLOCK
+      name: "<green><b>Overworld</b></green>"
+      lore:
+        - "<gray>Cliquer pour se téléporter dans l'Overworld."
+      dimension: "overworld"
+    nether:
+      slot: 13
+      material: NETHER_BRICKS
+      name: "<red><b>Nether</b></red>"
+      lore:
+        - "<gray>Cliquer pour se téléporter dans le Nether."
+      dimension: "nether"
+    end:
+      slot: 15
+      material: END_STONE
+      name: "<yellow><b>The End</b></yellow>"
+      lore:
+        - "<gray>Cliquer pour se téléporter dans l'End."
+      dimension: "end"
+
+
+# --------------------------------------------------
+# MESSAGES (MiniMessage / Adventure Syntax)
+# --------------------------------------------------
+messages:
+  prefix: "<gray>[<blue>RTP</blue>] <dark_gray>» "
+  unknown-world: "<red>Monde inconnu. Utilise: /rtp [overworld|nether|end]"
+  world-disabled: "<red>Le RTP est désactivé dans cette dimension."
+  world-not-found: "<red>Le monde ciblé n'est pas chargé sur le serveur."
+  already-teleporting: "<red>Vous êtes déjà en cours de téléportation !"
+  cooldown: "<red>Vous devez attendre <yellow><time>s</yellow> avant de réutiliser /rtp !"
+  start-warmup: "<gray>Téléportation dans <yellow><seconds> secondes</yellow>... Ne bougez pas !"
+  warmup-actionbar: "<yellow>Téléportation dans <seconds>s..."
+  cancel-moved: "<red>Vous avez trop bougé, téléportation annulée."
+  cancel-actionbar: "<red>Téléportation annulée !"
+  success-actionbar: "<green>Téléporté !"
+  success-message: "<gray>Téléportation réussie !"
+  failed-find-location: "<red>Impossible de trouver un endroit sûr après <attempts> essais !"
