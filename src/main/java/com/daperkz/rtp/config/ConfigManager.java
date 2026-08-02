@@ -1,3 +1,11 @@
+/*
+* ==============================================================================
+* MousseRTP - Minecraft Plugin
+* Copyright (c) 2026 Daperkz
+*
+* ConfigManager
+* ==============================================================================
+*/
 package com.daperkz.rtp.config;
 
 import com.daperkz.rtp.RTPPlugin;

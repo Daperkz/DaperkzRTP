@@ -1,3 +1,11 @@
+/*
+* ==============================================================================
+* MousseRTP - Minecraft Plugin
+* Copyright (c) 2026 Daperkz
+*
+* GuiListener
+* ==============================================================================
+*/
 package com.daperkz.rtp.listener;
 
 import com.daperkz.rtp.RTPPlugin;

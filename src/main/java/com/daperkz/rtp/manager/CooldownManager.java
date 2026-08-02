@@ -1,3 +1,11 @@
+/*
+* ==============================================================================
+* MousseRTP - Minecraft Plugin
+* Copyright (c) 2026 Daperkz
+*
+* CooldownManager
+* ==============================================================================
+*/
 package com.daperkz.rtp.manager;
 
 import java.util.Map;
