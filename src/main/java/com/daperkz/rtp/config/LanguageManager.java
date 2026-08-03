@@ -30,14 +30,12 @@ public class LanguageManager {
     }
 
     public void loadLanguage() {
+        saveLangFile("lang/messages_en.yml");
+        saveLangFile("lang/messages_fr.yml");
+
         String lang = plugin.getConfig().getString("language", "en");
         String fileName = "lang/messages_" + lang + ".yml";
         File file = new File(plugin.getDataFolder(), fileName);
-
-        if (!file.exists()) {
-            plugin.saveResource("lang/messages_en.yml", false);
-            plugin.saveResource("lang/messages_fr.yml", false);
-        }
 
         this.messagesConfig = YamlConfiguration.loadConfiguration(file);
 
@@ -48,6 +46,12 @@ public class LanguageManager {
         }
     }
 
+    private void saveLangFile(String resourcePath) {
+        File file = new File(plugin.getDataFolder(), resourcePath);
+        if (!file.exists()) {
+            plugin.saveResource(resourcePath, false);
+        }
+    }
     /**
      * Standard message without placeholder replacements
      */
