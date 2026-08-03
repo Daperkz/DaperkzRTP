@@ -34,7 +34,6 @@ public class LanguageManager {
         String fileName = "lang/messages_" + lang + ".yml";
         File file = new File(plugin.getDataFolder(), fileName);
 
-        // Save defaults if file doesn't exist
         if (!file.exists()) {
             plugin.saveResource("lang/messages_en.yml", false);
             plugin.saveResource("lang/messages_fr.yml", false);
@@ -42,7 +41,6 @@ public class LanguageManager {
 
         this.messagesConfig = YamlConfiguration.loadConfiguration(file);
 
-        // Load internal fallback resource
         InputStream defStream = plugin.getResource(fileName);
         if (defStream != null) {
             YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(new InputStreamReader(defStream, StandardCharsets.UTF_8));
@@ -50,9 +48,21 @@ public class LanguageManager {
         }
     }
 
+    /**
+     * Standard message without placeholder replacements
+     */
     public Component getPrefixedMessage(String key) {
         String prefix = messagesConfig.getString("prefix", "");
         String msg = messagesConfig.getString(key, "");
+        return miniMessage.deserialize(prefix + msg);
+    }
+
+    /**
+     * Overloaded method with single string replacement
+     */
+    public Component getPrefixedMessage(String key, String target, String replacement) {
+        String prefix = messagesConfig.getString("prefix", "");
+        String msg = messagesConfig.getString(key, "").replace(target, replacement);
         return miniMessage.deserialize(prefix + msg);
     }
 

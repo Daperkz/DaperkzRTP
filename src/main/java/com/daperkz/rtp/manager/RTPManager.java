@@ -53,10 +53,7 @@ public class RTPManager {
 
         if (cd.isOnCooldown(player.getUniqueId(), cfg.getCooldownSeconds())) {
             long remaining = cd.getRemainingCooldown(player.getUniqueId(), cfg.getCooldownSeconds());
-            player.sendMessage(mm.deserialize(
-                    cfg.getConfig().getString("messages.prefix", "") +
-                    cfg.getConfig().getString("messages.cooldown", "").replace("<time>", String.valueOf(remaining))
-            ));
+            player.sendMessage(lang.getPrefixedMessage("cooldown", "<time>", String.valueOf(remaining)));
             return;
         }
 
@@ -72,27 +69,34 @@ public class RTPManager {
         }
 
         cd.setTeleporting(player.getUniqueId(), true);
-        player.sendMessage(mm.deserialize(
-                cfg.getConfig().getString("messages.prefix", "") +
-                cfg.getConfig().getString("messages.start-warmup", "").replace("<seconds>", String.valueOf(cfg.getCountdownSeconds()))
-        ));
+        player.sendMessage(lang.getPrefixedMessage("start-warmup", "<seconds>", String.valueOf(cfg.getCountdownSeconds())));
 
-        findSafeLocationAsync(world, bounds, cfg.getMaxAttempts()).thenAccept(targetLoc -> {
-            Bukkit.getScheduler().runTask(plugin, () -> {
-                if (targetLoc == null) {
-                    player.sendMessage(mm.deserialize(
-                            cfg.getConfig().getString("messages.prefix", "") +
-                            cfg.getConfig().getString("messages.failed-find-location", "").replace("<attempts>", String.valueOf(cfg.getMaxAttempts()))
-                    ));
-                    cd.setTeleporting(player.getUniqueId(), false);
-                    return;
-                }
+        findSafeLocation(world, bounds, cfg.getMaxAttempts(), 0, player);
+    }
 
-                startWarmup(player, targetLoc);
+    private void findSafeLocation(World world, ConfigManager.WorldBounds bounds, int maxAttempts, int currentAttempt, Player player) {
+        if (currentAttempt >= maxAttempts) {
+            player.sendMessage(plugin.getLanguageManager().getPrefixedMessage("failed-find-location", "<attempts>", String.valueOf(maxAttempts)));
+            plugin.getCooldownManager().setTeleporting(player.getUniqueId(), false);
+            return;
+        }
+
+        int x = random.nextInt(bounds.maxX() - bounds.minX() + 1) + bounds.minX();
+        int z = random.nextInt(bounds.maxZ() - bounds.minZ() + 1) + bounds.minZ();
+
+        world.getChunkAtAsync(x >> 4, z >> 4).thenAccept(chunk -> {
+            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                Location safeLoc = scanChunkForLocation(world, chunk, x, z);
+                Bukkit.getScheduler().runTask(plugin, () -> {
+                    if (safeLoc != null) {
+                        startWarmup(player, safeLoc);
+                    } else {
+                        findSafeLocation(world, bounds, maxAttempts, currentAttempt + 1, player);
+                    }
+                });
             });
         });
     }
-
     private CompletableFuture<Location> findSafeLocationAsync(World world, ConfigManager.WorldBounds bounds, int maxAttempts) {
         CompletableFuture<Location> future = new CompletableFuture<>();
 
@@ -128,11 +132,18 @@ public class RTPManager {
     }
 
     private Location scanOverworld(World world, Chunk chunk, int x, int z) {
-        int highestY = world.getHighestBlockYAt(x, z);
-        Material targetBlock = chunk.getBlock(x & 15, highestY, z & 15).getType();
+        int relX = x & 15;
+        int relZ = z & 15;
 
-        if (!DANGEROUS_BLOCKS.contains(targetBlock)) {
-            return new Location(world, x + 0.5, highestY + 1, z + 0.5);
+        // Scan top-down safely without main-thread world getter calls
+        for (int y = world.getMaxHeight() - 1; y >= world.getMinHeight(); y--) {
+            Material type = chunk.getBlock(relX, y, relZ).getType();
+            if (type != Material.AIR && type != Material.CAVE_AIR && type != Material.VOID_AIR) {
+                if (!DANGEROUS_BLOCKS.contains(type)) {
+                    return new Location(world, x + 0.5, y + 1, z + 0.5);
+                }
+                break;
+            }
         }
         return null;
     }

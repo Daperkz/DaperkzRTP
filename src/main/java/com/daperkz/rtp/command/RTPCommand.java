@@ -45,7 +45,7 @@ public class RTPCommand implements CommandExecutor, TabCompleter {
         }
 
         if (args.length > 0 && args[0].equalsIgnoreCase("reload")) {
-            if (!sender.hasPermission("MousseSMP.rtp.admin")) {
+            if (!sender.hasPermission("Daperkz.rtp.admin")) {
                 sender.sendMessage(plugin.getLanguageManager().getPrefixedMessage("no-permission"));
                 return true;
             }

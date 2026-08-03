@@ -42,6 +42,7 @@ public final class RTPPlugin extends JavaPlugin {
     public void reloadPluginConfig() {
         reloadConfig();
         this.configManager.loadConfigData();
+        this.languageManager.loadLanguage();
     }
 
     public ConfigManager getConfigManager() {
