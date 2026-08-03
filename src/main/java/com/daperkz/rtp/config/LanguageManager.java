@@ -37,6 +37,11 @@ public class LanguageManager {
         String fileName = "lang/messages_" + lang + ".yml";
         File file = new File(plugin.getDataFolder(), fileName);
 
+        if (!file.exists()) {
+            fileName = "lang/messages_en.yml";
+            file = new File(plugin.getDataFolder(), fileName);
+        }
+
         this.messagesConfig = YamlConfiguration.loadConfiguration(file);
 
         InputStream defStream = plugin.getResource(fileName);

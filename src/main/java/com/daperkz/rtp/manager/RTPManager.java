@@ -12,19 +12,23 @@ import com.daperkz.rtp.RTPPlugin;
 import com.daperkz.rtp.config.ConfigManager;
 import com.daperkz.rtp.config.LanguageManager;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import org.bukkit.*;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+import org.bukkit.Bukkit;
+import org.bukkit.ChunkSnapshot;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Sound;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.EnumSet;
-import java.util.Random;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class RTPManager {
 
     private final RTPPlugin plugin;
-    private final Random random = new Random();
     private final MiniMessage mm = MiniMessage.miniMessage();
 
     private static final Set<Material> DANGEROUS_BLOCKS = EnumSet.of(
@@ -45,6 +49,11 @@ public class RTPManager {
         ConfigManager cfg = plugin.getConfigManager();
         LanguageManager lang = plugin.getLanguageManager();
         CooldownManager cd = plugin.getCooldownManager();
+
+        if (lang == null || cfg == null) {
+            plugin.getLogger().severe("Configuration or Language manager not initialized!");
+            return;
+        }
 
         if (!bounds.enabled()) {
             player.sendMessage(lang.getPrefixedMessage("world-disabled"));
@@ -81,12 +90,14 @@ public class RTPManager {
             return;
         }
 
+        ThreadLocalRandom random = ThreadLocalRandom.current();
         int x = random.nextInt(bounds.maxX() - bounds.minX() + 1) + bounds.minX();
         int z = random.nextInt(bounds.maxZ() - bounds.minZ() + 1) + bounds.minZ();
 
         world.getChunkAtAsync(x >> 4, z >> 4).thenAccept(chunk -> {
+            ChunkSnapshot snapshot = chunk.getChunkSnapshot(true, false, false);
             Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-                Location safeLoc = scanChunkForLocation(world, chunk, x, z);
+                Location safeLoc = scanSnapshotForLocation(world, snapshot, x, z);
                 Bukkit.getScheduler().runTask(plugin, () -> {
                     if (safeLoc != null) {
                         startWarmup(player, safeLoc);
@@ -97,47 +108,22 @@ public class RTPManager {
             });
         });
     }
-    private CompletableFuture<Location> findSafeLocationAsync(World world, ConfigManager.WorldBounds bounds, int maxAttempts) {
-        CompletableFuture<Location> future = new CompletableFuture<>();
 
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            int attempts = 0;
-
-            while (attempts < maxAttempts) {
-                attempts++;
-                int x = random.nextInt(bounds.maxX() - bounds.minX() + 1) + bounds.minX();
-                int z = random.nextInt(bounds.maxZ() - bounds.minZ() + 1) + bounds.minZ();
-
-                CompletableFuture<Chunk> chunkFuture = world.getChunkAtAsync(x >> 4, z >> 4);
-                Chunk chunk = chunkFuture.join();
-
-                Location safeLoc = scanChunkForLocation(world, chunk, x, z);
-                if (safeLoc != null) {
-                    future.complete(safeLoc);
-                    return;
-                }
-            }
-            future.complete(null);
-        });
-
-        return future;
-    }
-
-    private Location scanChunkForLocation(World world, Chunk chunk, int x, int z) {
+    private Location scanSnapshotForLocation(World world, ChunkSnapshot snapshot, int x, int z) {
         return switch (world.getEnvironment()) {
-            case NETHER -> scanNether(world, chunk, x, z);
-            case THE_END -> scanEnd(world, chunk, x, z);
-            default -> scanOverworld(world, chunk, x, z);
+            case NETHER -> scanNether(world, snapshot, x, z);
+            case THE_END -> scanEnd(world, snapshot, x, z);
+            default -> scanOverworld(world, snapshot, x, z);
         };
     }
 
-    private Location scanOverworld(World world, Chunk chunk, int x, int z) {
+    private Location scanOverworld(World world, ChunkSnapshot snapshot, int x, int z) {
         int relX = x & 15;
         int relZ = z & 15;
 
         // Scan top-down safely without main-thread world getter calls
         for (int y = world.getMaxHeight() - 1; y >= world.getMinHeight(); y--) {
-            Material type = chunk.getBlock(relX, y, relZ).getType();
+            Material type = snapshot.getBlockType(relX, y, relZ);
             if (type != Material.AIR && type != Material.CAVE_AIR && type != Material.VOID_AIR) {
                 if (!DANGEROUS_BLOCKS.contains(type)) {
                     return new Location(world, x + 0.5, y + 1, z + 0.5);
@@ -148,12 +134,14 @@ public class RTPManager {
         return null;
     }
 
-    private Location scanNether(World world, Chunk chunk, int x, int z) {
+    private Location scanNether(World world, ChunkSnapshot snapshot, int x, int z) {
+        int relX = x & 15;
+        int relZ = z & 15;
         for (int y = 115; y >= 35; y--) {
-            Material floorMat = chunk.getBlock(x & 15, y, z & 15).getType();
+            Material floorMat = snapshot.getBlockType(relX, y, relZ);
             if (NETHER_VALID_FLOORS.contains(floorMat)) {
-                Material feetMat = chunk.getBlock(x & 15, y + 1, z & 15).getType();
-                Material headMat = chunk.getBlock(x & 15, y + 2, z & 15).getType();
+                Material feetMat = snapshot.getBlockType(relX, y + 1, relZ);
+                Material headMat = snapshot.getBlockType(relX, y + 2, relZ);
 
                 if (feetMat.isAir() && headMat.isAir()) {
                     return new Location(world, x + 0.5, y + 1, z + 0.5);
@@ -163,9 +151,11 @@ public class RTPManager {
         return null;
     }
 
-    private Location scanEnd(World world, Chunk chunk, int x, int z) {
-        int highestY = world.getHighestBlockYAt(x, z);
-        Material targetBlock = chunk.getBlock(x & 15, highestY, z & 15).getType();
+    private Location scanEnd(World world, ChunkSnapshot snapshot, int x, int z) {
+        int relX = x & 15;
+        int relZ = z & 15;
+        int highestY = snapshot.getHighestBlockYAt(relX, relZ);
+        Material targetBlock = snapshot.getBlockType(relX, highestY, relZ);
 
         if (targetBlock == Material.END_STONE) {
             return new Location(world, x + 0.5, highestY + 1, z + 0.5);

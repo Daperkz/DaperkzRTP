@@ -27,6 +27,7 @@ public final class RTPPlugin extends JavaPlugin {
         saveDefaultConfig();
 
         this.configManager = new ConfigManager(this);
+        this.languageManager = new LanguageManager(this);
         this.cooldownManager = new CooldownManager();
         this.rtpManager = new RTPManager(this);
 
@@ -36,13 +37,17 @@ public final class RTPPlugin extends JavaPlugin {
             getCommand("rtp").setTabCompleter(executor);
         }
         getServer().getPluginManager().registerEvents(new GuiListener(this), this);
-        getLogger().info("MousseRTP has been enabled!");
+        getLogger().info("MousseRTP v" + getPluginMeta().getVersion() + " enabled successfully!");
     }
 
     public void reloadPluginConfig() {
         reloadConfig();
-        this.configManager.loadConfigData();
-        this.languageManager.loadLanguage();
+        if (this.configManager != null) {
+            this.configManager.loadConfigData();
+        }
+        if (this.languageManager != null) {
+            this.languageManager.loadLanguage();
+        }
     }
 
     public ConfigManager getConfigManager() {
