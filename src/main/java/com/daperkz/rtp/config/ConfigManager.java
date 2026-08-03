@@ -12,6 +12,7 @@ import com.daperkz.rtp.RTPPlugin;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 
@@ -80,8 +81,26 @@ public class ConfigManager {
 
     public Map<Integer, GuiItemHolder> getGuiItems() { return guiItems; }
 
+    public record SoundConfig(boolean enabled, Sound sound, float volume, float pitch, boolean pitchIncrease) {}
     public record WorldBounds(boolean enabled, String worldName, int minX, int maxX, int minZ, int maxZ) {}
     public record GuiItemHolder(int slot, Material material, Component name, List<Component> lore, String dimension) {}
+
+    public SoundConfig getSoundConfig(String soundKey) {
+        String path = "sounds." + soundKey;
+        boolean enabled = getConfig().getBoolean(path + ".enabled", true);
+        String soundName = getConfig().getString(path + ".sound", "");
+        Sound sound;
+        try {
+            sound = Sound.valueOf(soundName.toUpperCase(Locale.ROOT));
+        } catch (IllegalArgumentException e) {
+            sound = Sound.BLOCK_NOTE_BLOCK_PLING;
+        }
+        float volume = (float) getConfig().getDouble(path + ".volume", 1.0);
+        float pitch = (float) getConfig().getDouble(path + ".pitch", 1.0);
+        boolean pitchIncrease = getConfig().getBoolean(path + ".pitch-increase", false);
+
+        return new SoundConfig(enabled, sound, volume, pitch, pitchIncrease);
+    }
 
     public WorldBounds getBounds(String dimensionType) {
         String path = "dimensions." + dimensionType.toLowerCase();

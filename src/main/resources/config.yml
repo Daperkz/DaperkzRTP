@@ -40,7 +40,36 @@ dimensions:
     min-z: -5000
     max-z: 5000
 
+# --------------------------------------------------
+# CONFIGURATION DES EFFETS SONORS (SOUNDS)
+# --------------------------------------------------
+sounds:
+  start:
+    enabled: true
+    sound: "BLOCK_NOTE_BLOCK_PLING"
+    volume: 1.0
+    pitch: 0.8
+  countdown:
+    enabled: true
+    sound: "BLOCK_NOTE_BLOCK_HARP"
+    volume: 1.0
+    # Pitch increases automatically as countdown gets closer to 0
+    pitch-increase: true
+    base-pitch: 1.0
+  cancel-moved:
+    enabled: true
+    sound: "ENTITY_ITEM_BREAK"
+    volume: 1.0
+    pitch: 0.5
+  teleport-success:
+    enabled: true
+    sound: "ENTITY_ENDERMAN_TELEPORT"
+    volume: 1.0
+    pitch: 1.0
 
+# --------------------------------------------------
+# CONFIGURATION DE L'INTERFACE
+# --------------------------------------------------
 gui:
   title: "<blue><b>RANDOM TELEPORT</b></blue>"
   rows: 3

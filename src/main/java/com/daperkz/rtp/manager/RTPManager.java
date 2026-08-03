@@ -12,7 +12,6 @@ import com.daperkz.rtp.RTPPlugin;
 import com.daperkz.rtp.config.ConfigManager;
 import com.daperkz.rtp.config.LanguageManager;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
 import org.bukkit.ChunkSnapshot;
 import org.bukkit.Location;
@@ -169,6 +168,18 @@ public class RTPManager {
         CooldownManager cd = plugin.getCooldownManager();
         Location initialLoc = player.getLocation().clone();
 
+        ConfigManager.SoundConfig startSound = cfg.getSoundConfig("start");
+        ConfigManager.SoundConfig countSound = cfg.getSoundConfig("countdown");
+        ConfigManager.SoundConfig cancelSound = cfg.getSoundConfig("cancel-moved");
+        ConfigManager.SoundConfig teleportSound = cfg.getSoundConfig("teleport-success");
+
+        // Play Warmup Start sound
+        if (startSound.enabled()) {
+            player.playSound(player.getLocation(), startSound.sound(), startSound.volume(), startSound.pitch());
+        }
+
+        final int initialSeconds = cfg.getCountdownSeconds();
+
         new BukkitRunnable() {
             int countdown = cfg.getCountdownSeconds();
 
@@ -183,6 +194,9 @@ public class RTPManager {
                 if (player.getLocation().distanceSquared(initialLoc) > Math.pow(cfg.getMoveCancelDistance(), 2)) {
                     player.sendMessage(lang.getPrefixedMessage("cancel-moved"));
                     player.sendActionBar(lang.getMessage("cancel-actionbar"));
+                    if (cancelSound.enabled()) {
+                        player.playSound(player.getLocation(), cancelSound.sound(), cancelSound.volume(), cancelSound.pitch());
+                    }
                     cd.setTeleporting(player.getUniqueId(), false);
                     cancel();
                     return;
@@ -193,7 +207,9 @@ public class RTPManager {
                         if (success) {
                             player.sendActionBar(lang.getMessage("success-actionbar"));
                             player.sendMessage(lang.getPrefixedMessage("success-message"));
-                            player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1.0f, 1.0f);
+                            if (teleportSound.enabled()) {
+                                player.playSound(player.getLocation(), teleportSound.sound(), teleportSound.volume(), teleportSound.pitch());
+                            }
                             cd.setCooldown(player.getUniqueId());
                         }
                         cd.setTeleporting(player.getUniqueId(), false);
@@ -205,6 +221,16 @@ public class RTPManager {
                 player.sendActionBar(mm.deserialize(
                         lang.getRawMessage("warmup-actionbar").replace("<seconds>", String.valueOf(countdown))
                 ));
+
+                if (countSound.enabled()) {
+                    float currentPitch = countSound.pitch();
+                    if (countSound.pitchIncrease()) {
+                        float elapsedRatio = (float) (initialSeconds - countdown) / Math.max(1, initialSeconds);
+                        currentPitch += (elapsedRatio * 0.5f);
+                    }
+
+                    player.playSound(player.getLocation(), countSound.sound(), countSound.volume(), currentPitch);
+                }
 
                 countdown--;
             }
