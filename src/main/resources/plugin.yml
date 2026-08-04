@@ -9,6 +9,7 @@ name: MousseRTP
 version: '${project.version}'
 main: com.daperkz.rtp.RTPPlugin
 api-version: '1.20'
+folia-supported: true
 author: Daperkz
 description: High performance asynchronous RTP plugin.
 

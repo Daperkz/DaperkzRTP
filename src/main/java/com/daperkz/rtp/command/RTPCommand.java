@@ -75,7 +75,7 @@ public class RTPCommand implements CommandExecutor, TabCompleter {
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
         if (args.length == 1) {
             List<String> suggestions = new ArrayList<>(List.of("overworld", "nether", "end"));
-            if (sender.hasPermission("MousseSMP.rtp.admin")) {
+            if (sender.hasPermission("Daperkz.rtp.admin")) {
                 suggestions.add("reload");
             }
             return suggestions.stream()
