@@ -37,7 +37,7 @@ README_PUBLIC
 
 ## 🚀 Quick Start & Installation
 
-1. **Download** the latest `MousseRTP-1.3.0.jar` from [Releases](https://github.com/Daperkz/MousseRTP/releases/).
+1. **Download** the latest `MousseRTP-x.x.x.jar` from [Releases](https://github.com/Daperkz/MousseRTP/releases/).
 2. Place the `.jar` file into your server's `/plugins/` directory.
 3. Restart your server.
 4. *(Optional)* Edit `/plugins/MousseRTP/config.yml` to adjust world names, dimension boundaries, or language options (`en` / `fr`).
