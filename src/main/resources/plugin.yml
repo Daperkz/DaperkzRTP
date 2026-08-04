@@ -15,14 +15,14 @@ description: High performance asynchronous RTP plugin.
 
 permissions:
   Daperkz.rtp:
-    description: Permission d'utiliser /rtp
+    description: Permission to use /rtp
     default: true
   Daperkz.rtp.admin:
-    description: Permission de recharger le plugin
+    description: Permission to reload the plugin
     default: op
 
 commands:
   rtp:
-    description: Téléporte le joueur à un endroit aléatoire sécurisé.
+    description: Teleport the player at a random secure place
     permission: Daperkz.rtp
-    permission-message: "<red>Tu n'as pas la permission d'utiliser cette commande."
+    permission-message: "<red>You do not have permission to use this command."

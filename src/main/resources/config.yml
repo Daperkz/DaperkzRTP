@@ -6,42 +6,42 @@
 # ==============================================================================
 
 # --------------------------------------------------
-# CONFIGURATION GÉNÉRALE
+# GENERAL CONFIGURATION
 # --------------------------------------------------
-language: "fr"
+language: "en"
 cooldown-seconds: 30
 countdown-seconds: 3
 move-cancel-distance: 1.0
 max-location-attempts: 80
 
 # --------------------------------------------------
-# CONFIGURATION DES DIMENSIONS
+# DIMENSIONS CONFIGURATION
 # --------------------------------------------------
 dimensions:
   overworld:
     enabled: true
-    world-name: "MousseSMP"
+    world-name: "world"
     min-x: -10000
     max-x: 10000
     min-z: -10000
     max-z: 10000
   nether:
     enabled: true
-    world-name: "MousseSMP_nether"
+    world-name: "world_nether"
     min-x: -2500
     max-x: 2500
     min-z: -2500
     max-z: 2500
   end:
     enabled: true
-    world-name: "MousseSMP_the_end"
+    world-name: "world_the_end"
     min-x: -5000
     max-x: 5000
     min-z: -5000
     max-z: 5000
 
 # --------------------------------------------------
-# CONFIGURATION DES EFFETS SONORS (SOUNDS)
+# SOUND EFFECTS CONFIGURATION
 # --------------------------------------------------
 sounds:
   start:
@@ -53,7 +53,6 @@ sounds:
     enabled: true
     sound: "BLOCK_NOTE_BLOCK_HARP"
     volume: 1.0
-    # Pitch increases automatically as countdown gets closer to 0
     pitch-increase: true
     base-pitch: 1.0
   cancel-moved:
@@ -68,7 +67,7 @@ sounds:
     pitch: 1.0
 
 # --------------------------------------------------
-# CONFIGURATION DE L'INTERFACE
+# INTERFACE CONFIGURATION
 # --------------------------------------------------
 gui:
   title: "<blue><b>RANDOM TELEPORT</b></blue>"
