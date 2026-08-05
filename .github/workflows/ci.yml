@@ -1,11 +1,11 @@
 # ==============================================================================
-# MousseRTP - Java Minecraft Plugin
+# DaperkzRTP - Java Minecraft Plugin
 # Copyright (c) 2026 Daperkz
 #
 # ci
 # ==============================================================================
 
-name: MousseRTP CI/CD
+name: DaperkzRTP CI/CD
 
 on:
   push:
@@ -48,7 +48,7 @@ jobs:
 
       - name: Verify Build Output
         run: |
-          if [ ! -f target/MousseRTP-*.jar ]; then
+          if [ ! -f target/DaperkzRTP-*.jar ]; then
             echo "::error::Built JAR file not found in target/ directory!"
             exit 1
           fi
@@ -57,8 +57,8 @@ jobs:
         if: github.ref_type != 'tag'
         uses: actions/upload-artifact@v7
         with:
-          name: MousseRTP-build-${{ github.sha }}
-          path: target/MousseRTP-*.jar
+          name: DaperkzRTP-build-${{ github.sha }}
+          path: target/DaperkzRTP-*.jar
           retention-days: 7
 
   release:
@@ -85,7 +85,7 @@ jobs:
       - name: Create GitHub Release & Upload JAR
         uses: softprops/action-gh-release@v3
         with:
-          files: target/MousseRTP-*.jar
+          files: target/DaperkzRTP-*.jar
           generate_release_notes: true
           draft: false
           prerelease: false

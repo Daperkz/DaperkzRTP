@@ -1,6 +1,6 @@
 /*
 * ==============================================================================
-* MousseRTP - Minecraft Plugin
+* DaperkzRTP - Minecraft Plugin
 * Copyright (c) 2026 Daperkz
 *
 * RTPGui

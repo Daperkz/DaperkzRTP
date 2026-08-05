@@ -1,6 +1,6 @@
 /*
 * ==============================================================================
-* MousseRTP - Minecraft Plugin
+* DaperkzRTP - Minecraft Plugin
 * Copyright (c) 2026 Daperkz
 *
 * RTPPlugin
@@ -37,7 +37,7 @@ public final class RTPPlugin extends JavaPlugin {
             getCommand("rtp").setTabCompleter(executor);
         }
         getServer().getPluginManager().registerEvents(new GuiListener(this), this);
-        getLogger().info("MousseRTP v" + getPluginMeta().getVersion() + " enabled successfully!");
+        getLogger().info("DaperkzRTP v" + getPluginMeta().getVersion() + " enabled successfully!");
     }
 
     public void reloadPluginConfig() {

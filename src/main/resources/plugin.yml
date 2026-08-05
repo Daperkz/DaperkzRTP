@@ -1,11 +1,11 @@
 # ==============================================================================
-# MousseRTP - Java Minecraft Plugin
+# DaperkzRTP - Java Minecraft Plugin
 # Copyright (c) 2026 Daperkz
 #
 # plugin
 # ==============================================================================
 
-name: MousseRTP
+name: DaperkzRTP
 version: '${project.version}'
 main: com.daperkz.rtp.RTPPlugin
 api-version: '1.20'
