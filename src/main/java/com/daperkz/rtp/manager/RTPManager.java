@@ -82,6 +82,11 @@ public class RTPManager {
     }
 
     private void findSafeLocation(World world, ConfigManager.WorldBounds bounds, int maxAttempts, int currentAttempt, Player player) {
+        if (!player.isOnline()) {
+            plugin.getCooldownManager().setTeleporting(player.getUniqueId(), false);
+            return;
+        }
+
         if (currentAttempt >= maxAttempts) {
             player.sendMessage(plugin.getLanguageManager().getPrefixedMessage("failed-find-location", "<attempts>", String.valueOf(maxAttempts)));
             plugin.getCooldownManager().setTeleporting(player.getUniqueId(), false);
@@ -91,19 +96,28 @@ public class RTPManager {
         ThreadLocalRandom random = ThreadLocalRandom.current();
         int x = random.nextInt(bounds.maxX() - bounds.minX() + 1) + bounds.minX();
         int z = random.nextInt(bounds.maxZ() - bounds.minZ() + 1) + bounds.minZ();
+        int chunkX = x >> 4;
+        int chunkZ = z >> 4;
 
-        world.getChunkAtAsync(x >> 4, z >> 4).thenAccept(chunk -> {
-            ChunkSnapshot snapshot = chunk.getChunkSnapshot(true, false, false);
-            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+        world.addPluginChunkTicket(chunkX, chunkZ, plugin);
+        world.getChunkAtAsync(chunkX, chunkZ).thenAccept(chunk -> {
+            TaskScheduler.runAsync(plugin, () -> {
+                ChunkSnapshot snapshot = chunk.getChunkSnapshot(true, false, false);
                 Location safeLoc = scanSnapshotForLocation(world, snapshot, x, z);
-                TaskScheduler.runRegionTask(plugin, new Location(world, x, 64, z), () -> {
+                world.removePluginChunkTicket(chunkX, chunkZ, plugin);
+                TaskScheduler.runEntityTaskLater(plugin, player, () -> {
                     if (safeLoc != null) {
                         startWarmup(player, safeLoc);
                     } else {
                         findSafeLocation(world, bounds, maxAttempts, currentAttempt + 1, player);
                     }
-                });
+                }, 0L);
             });
+        }).exceptionally(ex -> {
+            world.removePluginChunkTicket(chunkX, chunkZ, plugin);
+            TaskScheduler.runEntityTaskLater(plugin, player, () ->
+                findSafeLocation(world, bounds, maxAttempts, currentAttempt + 1, player), 0L);
+            return null;
         });
     }
 
@@ -118,9 +132,11 @@ public class RTPManager {
     private Location scanOverworld(World world, ChunkSnapshot snapshot, int x, int z) {
         int relX = x & 15;
         int relZ = z & 15;
+        int maxHeight = Math.min(world.getMaxHeight() - 1, 319);
+        int minHeight = Math.max(world.getMinHeight(), -64);
 
         // Scan top-down safely without main-thread world getter calls
-        for (int y = world.getMaxHeight() - 1; y >= world.getMinHeight(); y--) {
+        for (int y = maxHeight; y >= minHeight; y--) {
             Material type = snapshot.getBlockType(relX, y, relZ);
             if (type != Material.AIR && type != Material.CAVE_AIR && type != Material.VOID_AIR) {
                 if (!DANGEROUS_BLOCKS.contains(type)) {
@@ -191,7 +207,7 @@ public class RTPManager {
             return;
         }
 
-        if (player.getLocation().distanceSquared(initialLoc) > Math.pow(cfg.getMoveCancelDistance(), 2)) {
+        if (!player.getWorld().equals(initialLoc.getWorld()) || player.getLocation().distanceSquared(initialLoc) > Math.pow(cfg.getMoveCancelDistance(), 2)) {
             player.sendMessage(lang.getPrefixedMessage("cancel-moved"));
             player.sendActionBar(lang.getMessage("cancel-actionbar"));
             if (cancelSound.enabled()) {
@@ -202,17 +218,25 @@ public class RTPManager {
         }
 
         if (countdown <= 0) {
-            player.teleportAsync(targetLoc).thenAccept(success -> {
-                if (success) {
-                    player.sendActionBar(lang.getMessage("success-actionbar"));
-                    player.sendMessage(lang.getPrefixedMessage("success-message"));
-                    if (teleportSound.enabled()) {
-                        player.playSound(player.getLocation(), teleportSound.sound(), teleportSound.volume(), teleportSound.pitch());
-                    }
-                    cd.setCooldown(player.getUniqueId());
-                }
-                cd.setTeleporting(player.getUniqueId(), false);
-            });
+            if (targetLoc.getWorld() != null) {
+                targetLoc.getWorld().getChunkAtAsync(targetLoc).thenAccept(c -> {
+                    TaskScheduler.runEntityTaskLater(plugin, player, () -> {
+                        player.teleportAsync(targetLoc).thenAccept(success -> {
+                            if (success) {
+                                player.sendActionBar(lang.getMessage("success-actionbar"));
+                                player.sendMessage(lang.getPrefixedMessage("success-message"));
+                                if (teleportSound.enabled()) {
+                                    player.playSound(player.getLocation(), teleportSound.sound(), teleportSound.volume(), teleportSound.pitch());
+                                }
+                                cd.setCooldown(player.getUniqueId());
+                            } else {
+                                player.sendMessage(lang.getPrefixedMessage("failed-find-location", "<attempts>", "1"));
+                            }
+                            cd.setTeleporting(player.getUniqueId(), false);
+                        });
+                    }, 0L);
+                });
+            }
             return;
         }
 
