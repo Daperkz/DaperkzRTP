@@ -102,12 +102,18 @@ public class RTPManager {
         world.addPluginChunkTicket(chunkX, chunkZ, plugin);
         world.getChunkAtAsync(chunkX, chunkZ).thenAccept(chunk -> {
             TaskScheduler.runAsync(plugin, () -> {
-                ChunkSnapshot snapshot = chunk.getChunkSnapshot(true, false, false);
-                Location safeLoc = scanSnapshotForLocation(world, snapshot, x, z);
-                world.removePluginChunkTicket(chunkX, chunkZ, plugin);
+                Location safeLoc = null;
+                // FIX: Wrap chunk snapshot scanning in a try-finally block to guarantee the ticket is always removed
+                try {
+                    ChunkSnapshot snapshot = chunk.getChunkSnapshot(true, false, false);
+                    safeLoc = scanSnapshotForLocation(world, snapshot, x, z);
+                } finally {
+                    world.removePluginChunkTicket(chunkX, chunkZ, plugin);
+                }
+                Location finalSafeLoc = safeLoc;
                 TaskScheduler.runEntityTaskLater(plugin, player, () -> {
-                    if (safeLoc != null) {
-                        startWarmup(player, safeLoc);
+                    if (finalSafeLoc != null) {
+                        startWarmup(player, finalSafeLoc);
                     } else {
                         findSafeLocation(world, bounds, maxAttempts, currentAttempt + 1, player);
                     }
@@ -115,8 +121,13 @@ public class RTPManager {
             });
         }).exceptionally(ex -> {
             world.removePluginChunkTicket(chunkX, chunkZ, plugin);
-            TaskScheduler.runEntityTaskLater(plugin, player, () ->
-                findSafeLocation(world, bounds, maxAttempts, currentAttempt + 1, player), 0L);
+            TaskScheduler.runEntityTaskLater(plugin, player, () -> {
+                if (player.isOnline()) {
+                    findSafeLocation(world, bounds, maxAttempts, currentAttempt + 1, player);
+                } else {
+                    plugin.getCooldownManager().setTeleporting(player.getUniqueId(), false);
+                }
+            }, 0L);
             return null;
         });
     }
@@ -222,20 +233,28 @@ public class RTPManager {
                 targetLoc.getWorld().getChunkAtAsync(targetLoc).thenAccept(c -> {
                     TaskScheduler.runEntityTaskLater(plugin, player, () -> {
                         player.teleportAsync(targetLoc).thenAccept(success -> {
-                            if (success) {
-                                player.sendActionBar(lang.getMessage("success-actionbar"));
-                                player.sendMessage(lang.getPrefixedMessage("success-message"));
-                                if (teleportSound.enabled()) {
-                                    player.playSound(player.getLocation(), teleportSound.sound(), teleportSound.volume(), teleportSound.pitch());
+                            try {
+                                if (success) {
+                                    player.sendActionBar(lang.getMessage("success-actionbar"));
+                                    player.sendMessage(lang.getPrefixedMessage("success-message"));
+                                    if (teleportSound.enabled()) {
+                                        player.playSound(player.getLocation(), teleportSound.sound(), teleportSound.volume(), teleportSound.pitch());
+                                    }
+                                    cd.setCooldown(player.getUniqueId());
+                                } else {
+                                    player.sendMessage(lang.getPrefixedMessage("failed-find-location", "<attempts>", "1"));
                                 }
-                                cd.setCooldown(player.getUniqueId());
-                            } else {
-                                player.sendMessage(lang.getPrefixedMessage("failed-find-location", "<attempts>", "1"));
+                            } finally {
+                                cd.setTeleporting(player.getUniqueId(), false);
                             }
-                            cd.setTeleporting(player.getUniqueId(), false);
                         });
                     }, 0L);
+                }).exceptionally(ex -> {
+                    cd.setTeleporting(player.getUniqueId(), false);
+                    return null;
                 });
+            } else {
+                cd.setTeleporting(player.getUniqueId(), false);
             }
             return;
         }
