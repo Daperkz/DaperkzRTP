@@ -44,6 +44,16 @@ public class RTPCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
+        if (args[0].equalsIgnoreCase("cancel")) {
+            boolean cancelled = plugin.getRTPManager().cancelRTP(player);
+            if (cancelled) {
+                player.sendMessage(plugin.getLanguageManager().getPrefixedMessage("cancel-success"));
+            } else {
+                player.sendMessage(plugin.getLanguageManager().getPrefixedMessage("not-teleporting"));
+            }
+            return true;
+        }
+
         if (args.length > 0 && args[0].equalsIgnoreCase("reload")) {
             if (!sender.hasPermission("Daperkz.rtp.admin")) {
                 sender.sendMessage(plugin.getLanguageManager().getPrefixedMessage("no-permission"));
@@ -74,7 +84,7 @@ public class RTPCommand implements CommandExecutor, TabCompleter {
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
         if (args.length == 1) {
-            List<String> suggestions = new ArrayList<>(List.of("overworld", "nether", "end"));
+            List<String> suggestions = new ArrayList<>(List.of("overworld", "nether", "end", "cancel"));
             if (sender.hasPermission("Daperkz.rtp.admin")) {
                 suggestions.add("reload");
             }

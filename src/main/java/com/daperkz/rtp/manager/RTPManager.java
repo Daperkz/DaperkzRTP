@@ -43,6 +43,15 @@ public class RTPManager {
         this.plugin = plugin;
     }
 
+    public boolean cancelRTP(Player player) {
+        CooldownManager cd = plugin.getCooldownManager();
+        if (cd.isTeleporting(player.getUniqueId())) {
+            cd.setTeleporting(player.getUniqueId(), false);
+            return true;
+        }
+        return false;
+    }
+
     public void processRTP(Player player, ConfigManager.WorldBounds bounds) {
         ConfigManager cfg = plugin.getConfigManager();
         LanguageManager lang = plugin.getLanguageManager();
@@ -82,7 +91,7 @@ public class RTPManager {
     }
 
     private void findSafeLocation(World world, ConfigManager.WorldBounds bounds, int maxAttempts, int currentAttempt, Player player) {
-        if (!player.isOnline()) {
+        if (!player.isOnline() || !plugin.getCooldownManager().isTeleporting(player.getUniqueId())) {
             plugin.getCooldownManager().setTeleporting(player.getUniqueId(), false);
             return;
         }
@@ -100,18 +109,26 @@ public class RTPManager {
         int chunkZ = z >> 4;
 
         world.addPluginChunkTicket(chunkX, chunkZ, plugin);
+
         world.getChunkAtAsync(chunkX, chunkZ).thenAccept(chunk -> {
             TaskScheduler.runAsync(plugin, () -> {
                 Location safeLoc = null;
-                // FIX: Wrap chunk snapshot scanning in a try-finally block to guarantee the ticket is always removed
                 try {
                     ChunkSnapshot snapshot = chunk.getChunkSnapshot(true, false, false);
                     safeLoc = scanSnapshotForLocation(world, snapshot, x, z);
+                } catch (Exception ex) {
+                    plugin.getLogger().warning("Error scanning chunk at [" + chunkX + ", " + chunkZ + "]: " + ex.getMessage());
                 } finally {
                     world.removePluginChunkTicket(chunkX, chunkZ, plugin);
                 }
+
                 Location finalSafeLoc = safeLoc;
                 TaskScheduler.runEntityTaskLater(plugin, player, () -> {
+                    if (!player.isOnline() || !plugin.getCooldownManager().isTeleporting(player.getUniqueId())) {
+                        plugin.getCooldownManager().setTeleporting(player.getUniqueId(), false);
+                        return;
+                    }
+
                     if (finalSafeLoc != null) {
                         startWarmup(player, finalSafeLoc);
                     } else {
@@ -213,7 +230,7 @@ public class RTPManager {
         LanguageManager lang = plugin.getLanguageManager();
         ConfigManager cfg = plugin.getConfigManager();
 
-        if (!player.isOnline()) {
+        if (!player.isOnline() || !cd.isTeleporting(player.getUniqueId())) {
             cd.setTeleporting(player.getUniqueId(), false);
             return;
         }
