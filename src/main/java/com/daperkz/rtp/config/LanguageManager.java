@@ -12,6 +12,7 @@ import com.daperkz.rtp.RTPPlugin;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 
 import java.io.File;
 import java.io.InputStream;
@@ -82,5 +83,29 @@ public class LanguageManager {
 
     public String getRawMessage(String key) {
         return messagesConfig.getString(key, "");
+    }
+
+    public void sendNotification(Player player, String toggleKey, String chatKey, String actionbarKey, String placeholderTarget, String replacement) {
+        ConfigManager.MessageToggle toggle = plugin.getConfigManager().getMessageToggle(toggleKey);
+
+        if (toggle.allowsChat() && chatKey != null && !chatKey.isEmpty()) {
+            if (placeholderTarget != null && replacement != null) {
+                player.sendMessage(getPrefixedMessage(chatKey, placeholderTarget, replacement));
+            } else {
+                player.sendMessage(getPrefixedMessage(chatKey));
+            }
+        }
+
+        if (toggle.allowsActionbar() && actionbarKey != null && !actionbarKey.isEmpty()) {
+            String raw = getRawMessage(actionbarKey);
+            if (placeholderTarget != null && replacement != null) {
+                raw = raw.replace(placeholderTarget, replacement);
+            }
+            player.sendActionBar(miniMessage.deserialize(raw));
+        }
+    }
+
+    public void sendNotification(Player player, String toggleKey, String chatKey, String actionbarKey) {
+        sendNotification(player, toggleKey, chatKey, actionbarKey, null, null);
     }
 }

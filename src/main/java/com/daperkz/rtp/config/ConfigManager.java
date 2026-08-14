@@ -24,6 +24,22 @@ public class ConfigManager {
     private final MiniMessage miniMessage = MiniMessage.miniMessage();
     private final Map<Integer, GuiItemHolder> guiItems = new HashMap<>();
 
+    public enum OutputChannel {
+        CHAT, ACTIONBAR, TITLE, NONE, ALL
+    }
+
+    public record MessageToggle(Set<OutputChannel> channels) {
+        public boolean allowsChat() {
+            return channels.contains(OutputChannel.ALL) || channels.contains(OutputChannel.CHAT);
+        }
+        public boolean allowsActionbar() {
+            return channels.contains(OutputChannel.ALL) || channels.contains(OutputChannel.ACTIONBAR);
+        }
+        public boolean allowsTitle() {
+            return channels.contains(OutputChannel.ALL) || channels.contains(OutputChannel.TITLE);
+        }
+    }
+
     public ConfigManager(RTPPlugin plugin) {
         this.plugin = plugin;
         loadConfigData();
@@ -50,6 +66,20 @@ public class ConfigManager {
                 guiItems.put(slot, new GuiItemHolder(slot, material != null ? material : Material.STONE, name, lore, dimension));
             }
         }
+    }
+
+    public MessageToggle getMessageToggle(String key) {
+        List<String> rawChannels = getConfig().getStringList("messages-toggle." + key);
+        Set<OutputChannel> channels = EnumSet.noneOf(OutputChannel.class);
+
+        for (String raw : rawChannels) {
+            try {
+                channels.add(OutputChannel.valueOf(raw.toUpperCase(Locale.ROOT)));
+            } catch (IllegalArgumentException ignored) {
+                // Ignore invalid config values
+            }
+        }
+        return new MessageToggle(channels);
     }
 
     public int getCooldownSeconds() {

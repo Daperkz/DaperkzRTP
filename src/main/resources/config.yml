@@ -96,3 +96,14 @@ gui:
       lore:
         - "<gray>Cliquer pour se téléporter dans l'End."
       dimension: "end"
+
+# --------------------------------------------------
+# MESSAGE OUTPUT TOGGLES
+# Available channels: CHAT, ACTIONBAR, TITLE, NONE, ALL
+# --------------------------------------------------
+messages-toggle:
+  start: ["CHAT"]
+  warmup: ["ACTIONBAR"]
+  success: ["CHAT", "ACTIONBAR"]
+  fail: ["CHAT"]
+  cancel: ["CHAT"]

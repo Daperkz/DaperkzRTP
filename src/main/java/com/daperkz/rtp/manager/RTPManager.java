@@ -85,7 +85,8 @@ public class RTPManager {
         }
 
         cd.setTeleporting(player.getUniqueId(), true);
-        player.sendMessage(lang.getPrefixedMessage("start-warmup", "<seconds>", String.valueOf(cfg.getCountdownSeconds())));
+
+        lang.sendNotification(player, "start", "start-warmup", null, "<seconds>", String.valueOf(cfg.getCountdownSeconds()));
 
         findSafeLocation(world, bounds, cfg.getMaxAttempts(), 0, player);
     }
@@ -97,7 +98,7 @@ public class RTPManager {
         }
 
         if (currentAttempt >= maxAttempts) {
-            player.sendMessage(plugin.getLanguageManager().getPrefixedMessage("failed-find-location", "<attempts>", String.valueOf(maxAttempts)));
+            plugin.getLanguageManager().sendNotification(player, "fail", "failed-find-location", null, "<attempts>", String.valueOf(maxAttempts));
             plugin.getCooldownManager().setTeleporting(player.getUniqueId(), false);
             return;
         }
@@ -236,8 +237,7 @@ public class RTPManager {
         }
 
         if (!player.getWorld().equals(initialLoc.getWorld()) || player.getLocation().distanceSquared(initialLoc) > Math.pow(cfg.getMoveCancelDistance(), 2)) {
-            player.sendMessage(lang.getPrefixedMessage("cancel-moved"));
-            player.sendActionBar(lang.getMessage("cancel-actionbar"));
+            lang.sendNotification(player, "cancel", "cancel-moved", "cancel-actionbar");
             if (cancelSound.enabled()) {
                 player.playSound(player.getLocation(), cancelSound.sound(), cancelSound.volume(), cancelSound.pitch());
             }
@@ -252,8 +252,7 @@ public class RTPManager {
                         player.teleportAsync(targetLoc).thenAccept(success -> {
                             try {
                                 if (success) {
-                                    player.sendActionBar(lang.getMessage("success-actionbar"));
-                                    player.sendMessage(lang.getPrefixedMessage("success-message"));
+                                    lang.sendNotification(player, "success", "success-message", "success-actionbar");
                                     if (teleportSound.enabled()) {
                                         player.playSound(player.getLocation(), teleportSound.sound(), teleportSound.volume(), teleportSound.pitch());
                                     }
@@ -276,9 +275,7 @@ public class RTPManager {
             return;
         }
 
-        player.sendActionBar(mm.deserialize(
-                lang.getRawMessage("warmup-actionbar").replace("<seconds>", String.valueOf(countdown))
-        ));
+        lang.sendNotification(player, "warmup", null, "warmup-actionbar", "<seconds>", String.valueOf(countdown));
 
         if (countSound.enabled()) {
             float currentPitch = countSound.pitch();

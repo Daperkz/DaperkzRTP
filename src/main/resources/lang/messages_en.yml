@@ -5,7 +5,7 @@
 # messages_en
 # ==============================================================================
 
-prefix: "<gray>[<blue>RTP</blue>] <dark_gray>» "
+prefix: "<blue>RTP</blue>» "
 unknown-world: "<red>Unknown world. Use: /rtp [overworld|nether|end]"
 world-disabled: "<red>RTP is disabled in this dimension."
 world-not-found: "<red>The target world is not loaded on the server."
