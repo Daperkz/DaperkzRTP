@@ -31,7 +31,8 @@ public class RTPManager {
 
     private static final Set<Material> DANGEROUS_BLOCKS = EnumSet.of(
             Material.LAVA, Material.WATER, Material.CACTUS, Material.BEDROCK,
-            Material.FIRE, Material.SOUL_FIRE, Material.MAGMA_BLOCK, Material.VOID_AIR, Material.AIR
+            Material.FIRE, Material.SOUL_FIRE, Material.MAGMA_BLOCK, Material.VOID_AIR,
+            Material.AIR, Material.CAVE_AIR, Material.POWDER_SNOW
     );
 
     private static final Set<Material> NETHER_VALID_FLOORS = EnumSet.of(
@@ -161,20 +162,27 @@ public class RTPManager {
     private Location scanOverworld(World world, ChunkSnapshot snapshot, int x, int z) {
         int relX = x & 15;
         int relZ = z & 15;
-        int maxHeight = Math.min(world.getMaxHeight() - 1, 319);
-        int minHeight = Math.max(world.getMinHeight(), -64);
+        int highestY = snapshot.getHighestBlockYAt(relX, relZ);
 
-        // Scan top-down safely without main-thread world getter calls
-        for (int y = maxHeight; y >= minHeight; y--) {
-            Material type = snapshot.getBlockType(relX, y, relZ);
-            if (type != Material.AIR && type != Material.CAVE_AIR && type != Material.VOID_AIR) {
-                if (!DANGEROUS_BLOCKS.contains(type)) {
-                    return new Location(world, x + 0.5, y + 1, z + 0.5);
-                }
-                break;
+        for (int y = highestY; y >= world.getMinHeight(); y--) {
+            Material floor = snapshot.getBlockType(relX, y, relZ);
+            if (floor.isAir()) {
+                continue;
+            }
+            if (DANGEROUS_BLOCKS.contains(floor) || !floor.isSolid()) {
+                return null;
+            }
+            Material feet = (y + 1 <= world.getMaxHeight()) ? snapshot.getBlockType(relX, y + 1, relZ) : Material.AIR;
+            Material head = (y + 2 <= world.getMaxHeight()) ? snapshot.getBlockType(relX, y + 2, relZ) : Material.AIR;
+            if (isPassable(feet) && isPassable(head)) {
+                return new Location(world, x + 0.5, y + 1, z + 0.5);
             }
         }
         return null;
+    }
+
+    private boolean isPassable(Material material) {
+        return material.isAir() || (!material.isSolid() && !DANGEROUS_BLOCKS.contains(material));
     }
 
     private Location scanNether(World world, ChunkSnapshot snapshot, int x, int z) {
@@ -186,7 +194,7 @@ public class RTPManager {
                 Material feetMat = snapshot.getBlockType(relX, y + 1, relZ);
                 Material headMat = snapshot.getBlockType(relX, y + 2, relZ);
 
-                if (feetMat.isAir() && headMat.isAir()) {
+                if (isPassable(feetMat) && isPassable(headMat)) {
                     return new Location(world, x + 0.5, y + 1, z + 0.5);
                 }
             }
@@ -201,7 +209,11 @@ public class RTPManager {
         Material targetBlock = snapshot.getBlockType(relX, highestY, relZ);
 
         if (targetBlock == Material.END_STONE) {
-            return new Location(world, x + 0.5, highestY + 1, z + 0.5);
+            Material feetMat = snapshot.getBlockType(relX, highestY + 1, relZ);
+            Material headMat = snapshot.getBlockType(relX, highestY + 2, relZ);
+            if (isPassable(feetMat) && isPassable(headMat)) {
+                return new Location(world, x + 0.5, highestY + 1, z + 0.5);
+            }
         }
         return null;
     }
