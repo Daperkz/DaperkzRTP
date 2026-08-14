@@ -5,14 +5,14 @@
 # messages_fr
 # ==============================================================================
 
-prefix: "<blue>RTP</blue>» "
+prefix: "<blue>RTP</blue> <gray>»</gray> "
 unknown-world: "<red>Monde inconnu. Utilise: /rtp [overworld|nether|end]"
 world-disabled: "<red>Le RTP est désactivé dans cette dimension."
 world-not-found: "<red>Le monde ciblé n'est pas chargé sur le serveur."
 already-teleporting: "<red>Vous êtes déjà en cours de téléportation !"
 cooldown: "<red>Vous devez attendre <yellow><time>s</yellow> avant de réutiliser /rtp !"
 start-warmup: "<gray>Téléportation dans <yellow><seconds> secondes</yellow>... Ne bougez pas !"
-warmup-actionbar: "Téléportation dans <lightblue><seconds>s<lightblue>"
+warmup-actionbar: "Téléportation dans <blue><seconds>s</blue>"
 cancel-moved: "<red>Vous avez trop bougé, téléportation annulée."
 cancel-actionbar: "<red>Téléportation annulée !"
 success-actionbar: "<green>Téléporté !"
