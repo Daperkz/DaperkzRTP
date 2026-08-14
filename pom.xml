@@ -14,7 +14,7 @@ Maven Project Object Model
 
     <groupId>com.daperkz</groupId>
     <artifactId>DaperkzRTP</artifactId>
-    <version>1.3.3</version>
+    <version>1.3.4</version>
     <packaging>jar</packaging>
 
     <properties>

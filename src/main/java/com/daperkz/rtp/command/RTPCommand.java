@@ -32,12 +32,22 @@ public class RTPCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+        ConfigManager cfg = plugin.getConfigManager();
+
+        if (args.length > 0 && args[0].equalsIgnoreCase("reload")) {
+            if (!sender.hasPermission("Daperkz.rtp.admin")) {
+                sender.sendMessage(plugin.getLanguageManager().getPrefixedMessage("no-permission"));
+                return true;
+            }
+            plugin.reloadPluginConfig();
+            sender.sendMessage(plugin.getLanguageManager().getPrefixedMessage("reload-success"));
+            return true;
+        }
+
         if (!(sender instanceof Player player)) {
             sender.sendMessage("Seul un joueur peut exécuter cette commande.");
             return true;
         }
-
-        ConfigManager cfg = plugin.getConfigManager();
 
         if (args.length == 0) {
             player.openInventory(new RTPGui(plugin).getInventory());
@@ -51,16 +61,6 @@ public class RTPCommand implements CommandExecutor, TabCompleter {
             } else {
                 player.sendMessage(plugin.getLanguageManager().getPrefixedMessage("not-teleporting"));
             }
-            return true;
-        }
-
-        if (args.length > 0 && args[0].equalsIgnoreCase("reload")) {
-            if (!sender.hasPermission("Daperkz.rtp.admin")) {
-                sender.sendMessage(plugin.getLanguageManager().getPrefixedMessage("no-permission"));
-                return true;
-            }
-            plugin.reloadPluginConfig();
-            sender.sendMessage(plugin.getLanguageManager().getPrefixedMessage("reload-success"));
             return true;
         }
 
