@@ -56,18 +56,22 @@ Most RTP plugins feel clunky, rigid, or out of place. They offer limited setup o
 `DaperkzRTP` is pre-configured to work out of the box, but you can easily adapt world names and boundaries to match your server setup:
 
 ```yaml
-# Language selection ("en" or "fr")
+# --------------------------------------------------
+# GENERAL CONFIGURATION
+# --------------------------------------------------
 language: "en"
-
 cooldown-seconds: 30
 countdown-seconds: 3
 move-cancel-distance: 1.0
 max-location-attempts: 80
 
+# --------------------------------------------------
+# DIMENSIONS CONFIGURATION
+# --------------------------------------------------
 dimensions:
   overworld:
     enabled: true
-    world-name: "world"        # Adjust to match your server's world name
+    world-name: "world"
     min-x: -10000
     max-x: 10000
     min-z: -10000
@@ -86,6 +90,75 @@ dimensions:
     max-x: 5000
     min-z: -5000
     max-z: 5000
+
+# --------------------------------------------------
+# SOUND EFFECTS CONFIGURATION
+# --------------------------------------------------
+sounds:
+  start:
+    enabled: true
+    sound: "BLOCK_NOTE_BLOCK_PLING"
+    volume: 1.0
+    pitch: 0.8
+  countdown:
+    enabled: true
+    sound: "BLOCK_NOTE_BLOCK_HARP"
+    volume: 1.0
+    pitch-increase: true
+    base-pitch: 1.0
+  cancel-moved:
+    enabled: true
+    sound: "ENTITY_ITEM_BREAK"
+    volume: 1.0
+    pitch: 0.5
+  teleport-success:
+    enabled: true
+    sound: "ENTITY_ENDERMAN_TELEPORT"
+    volume: 1.0
+    pitch: 1.0
+
+# --------------------------------------------------
+# INTERFACE CONFIGURATION
+# --------------------------------------------------
+gui:
+  title: "<blue><b>RANDOM TELEPORT</b></blue>"
+  rows: 3
+  fill-empty: false
+  fill-item: GRAY_STAINED_GLASS_PANE
+  items:
+    overworld:
+      slot: 11
+      material: GRASS_BLOCK
+      name: "<green><b>Overworld</b></green>"
+      lore:
+        - "<gray>Cliquer pour se téléporter dans l'Overworld."
+      dimension: "overworld"
+    nether:
+      slot: 13
+      material: NETHER_BRICKS
+      name: "<red><b>Nether</b></red>"
+      lore:
+        - "<gray>Cliquer pour se téléporter dans le Nether."
+      dimension: "nether"
+    end:
+      slot: 15
+      material: END_STONE
+      name: "<yellow><b>The End</b></yellow>"
+      lore:
+        - "<gray>Cliquer pour se téléporter dans l'End."
+      dimension: "end"
+
+# --------------------------------------------------
+# MESSAGE OUTPUT TOGGLES
+# Available channels: CHAT, ACTIONBAR, TITLE, NONE, ALL
+# --------------------------------------------------
+messages-toggle:
+  start: ["CHAT"]
+  warmup: ["ACTIONBAR"]
+  success: ["CHAT", "ACTIONBAR"]
+  fail: ["CHAT"]
+  cancel: ["CHAT"]
+
 ```
 
 ---
