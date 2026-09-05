@@ -68,6 +68,21 @@ public class ConfigManager {
         }
     }
 
+    public String getDimensionKeyByWorldName(String worldName) {
+        ConfigurationSection dimensionsSection = plugin.getConfig().getConfigurationSection("dimensions");
+        if (dimensionsSection == null)
+            return null;
+
+        for (String key : dimensionsSection.getKeys(false)) {
+            String configuredWorldName = dimensionsSection.getString(key + ".world-name");
+            boolean enabled = dimensionsSection.getBoolean(key + ".enabled", true);
+            if (enabled && worldName.equalsIgnoreCase(configuredWorldName)) {
+                return key;
+            }
+        }
+        return null;
+    }
+
     public MessageToggle getMessageToggle(String key) {
         List<String> rawChannels = getConfig().getStringList("messages-toggle." + key);
         Set<OutputChannel> channels = EnumSet.noneOf(OutputChannel.class);
@@ -93,6 +108,10 @@ public class ConfigManager {
     }
     public int getMaxAttempts() {
         return getConfig().getInt("max-location-attempts", 80);
+    }
+
+    public boolean getGuiEnabled() {
+        return getConfig().getBoolean("gui.enabled", true);
     }
 
     public Component getGuiTitle() {

@@ -70,6 +70,7 @@ sounds:
 # INTERFACE CONFIGURATION
 # --------------------------------------------------
 gui:
+  enabled: true
   title: "<b>RANDOM TELEPORT</b>"
   rows: 3
   fill-empty: false

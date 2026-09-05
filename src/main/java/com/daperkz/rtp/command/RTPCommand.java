@@ -49,28 +49,34 @@ public class RTPCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
+        String targetArg;
+
         if (args.length == 0) {
-            player.openInventory(new RTPGui(plugin).getInventory());
-            return true;
-        }
-
-        if (args[0].equalsIgnoreCase("cancel")) {
-            boolean cancelled = plugin.getRTPManager().cancelRTP(player);
-            if (cancelled) {
-                plugin.getLanguageManager().sendNotification(player, "cancel");
+            if (cfg.getGuiEnabled()) {
+                player.openInventory(new RTPGui(plugin).getInventory());
+                return true;
             } else {
-                plugin.getLanguageManager().sendNotification(player, "not-teleporting");
+                String currentWorldName = player.getWorld().getName();
+                targetArg = cfg.getDimensionKeyByWorldName(currentWorldName);
+                if (targetArg == null) {
+                    plugin.getLanguageManager().sendNotification(player, "world-disabled");
+                    return true;
+                }
             }
-            return true;
+        } else {
+            if (args[0].equalsIgnoreCase("cancel")) {
+                boolean cancelled = plugin.getRTPManager().cancelRTP(player);
+                if (cancelled) {
+                    plugin.getLanguageManager().sendNotification(player, "cancel");
+                } else {
+                    plugin.getLanguageManager().sendNotification(player, "not-teleporting");
+                }
+                return true;
+            }
+            targetArg = args[0].toLowerCase();
         }
 
-        String targetArg = args[0].toLowerCase();
-        ConfigManager.WorldBounds bounds = switch (targetArg) {
-            case "overworld", "world" -> cfg.getBounds("overworld");
-            case "nether" -> cfg.getBounds("nether");
-            case "end", "the_end" -> cfg.getBounds("end");
-            default -> null;
-        };
+        ConfigManager.WorldBounds bounds = cfg.getBounds(targetArg);
 
         if (bounds == null) {
             plugin.getLanguageManager().sendNotification(player, "unknown-world");
