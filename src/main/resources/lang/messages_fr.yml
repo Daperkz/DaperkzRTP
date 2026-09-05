@@ -8,17 +8,34 @@
 prefix: "<blue>RTP</blue> <gray>»</gray> "
 unknown-world: "<red>Monde inconnu. Utilise: /rtp [overworld|nether|end]"
 world-disabled: "<red>Le RTP est désactivé dans cette dimension."
-world-not-found: "<red>Le monde ciblé n'est pas chargé sur le serveur."
+world-not-found: "<red>Le monde configuré est introuvable."
 already-teleporting: "<red>Vous êtes déjà en cours de téléportation !"
 cooldown: "<red>Vous devez attendre <yellow><time>s</yellow> avant de réutiliser /rtp !"
 start-warmup: "<gray>Téléportation dans <yellow><seconds> secondes</yellow>... Ne bougez pas !"
-warmup-actionbar: "Téléportation dans <blue><seconds>s</blue>"
-cancel-moved: "<red>Vous avez trop bougé, téléportation annulée."
-cancel-actionbar: "<red>Téléportation annulée !"
-success-actionbar: "<green>Téléporté !"
-success-message: "<gray>Téléportation réussie !"
+warmup: "Téléportation dans <blue><seconds>s</blue>"
+cancel-moved:
+  chat: "<red>Vous avez trop bougé, téléportation annulée."
+  actionbar: "<red>Téléportation annulée !"
+tp-success:
+  chat: "<gray>Téléportation réussie !"
+  actionbar: "<green>Téléporté !"
 failed-find-location: "<red>Impossible de trouver un endroit sûr après <attempts> essais !"
+teleport-failed: "<red>La téléportation a échoué. Veuillez réessayer."
 no-permission: "<red>Vous n'avez pas la permission d'exécuter cette commande."
-reload-success: "<green>Configuration et messages rechargés avec succès !"
-cancel-success: "<green>Votre processus de téléportation a été annulé."
+player-only: "<red>Seul un joueur peut utiliser cette commande."
+reload: "<green>Configuration et messages rechargés avec succès !"
+cancel: "<red>Teleportation annulée!"
 not-teleporting: "<red>Vous n'êtes actuellement pas en cours de téléportation."
+
+# Les messages peuvent utiliser une valeur simple ou une valeur par canal.
+# La valeur simple est utilisée pour chaque canal activé. Les valeurs chat,
+# actionbar et title remplacent uniquement leur canal. title peut aussi
+# contenir un subtitle. Les canaux sont activés dans config.yml avec
+# messages-toggle.
+# Voici un exemple complet :
+# tp-success:
+#   chat: "<green>éléportation réussie !"
+#   actionbar: "<green>Teleporté !"
+#   title:
+#     text: "<green>Réussite!"
+#     subtitle: "<gray>Vous avez été teleporté."

@@ -8,17 +8,34 @@
 prefix: "<blue>RTP</blue> <gray>»</gray> "
 unknown-world: "<red>Unknown world. Use: /rtp [overworld|nether|end]"
 world-disabled: "<red>RTP is disabled in this dimension."
-world-not-found: "<red>The target world is not loaded on the server."
+world-not-found: "<red>The configured world could not be found."
 already-teleporting: "<red>You are already teleporting!"
 cooldown: "<red>You must wait <yellow><time>s</yellow> before using /rtp again!"
 start-warmup: "<gray>Teleporting in <yellow><seconds> seconds</yellow>... Do not move!"
-warmup-actionbar: "Teleporting in <blue><seconds>s</blue>"
-cancel-moved: "<red>You moved too much, teleportation cancelled."
-cancel-actionbar: "<red>Teleportation cancelled!"
-success-actionbar: "<green>Teleported!"
-success-message: "<gray>Teleportation successful!"
+warmup: "Teleporting in <blue><seconds>s</blue>"
+cancel-moved:
+  chat: "<red>You moved too much, teleportation cancelled."
+  actionbar: "<red>Teleportation cancelled!"
+tp-success:
+  chat: "<gray>Teleportation successful!"
+  actionbar: "<green>Teleported!"
 failed-find-location: "<red>Could not find a safe location after <attempts> attempts!"
+teleport-failed: "<red>Teleportation failed. Please try again."
 no-permission: "<red>You do not have permission to execute this command."
-reload-success: "<green>Configuration and messages reloaded successfully!"
-cancel-success: "<green>Your RTP process has been cancelled."
+player-only: "<red>Only a player can use this command."
+reload: "<green>Configuration and messages reloaded successfully!"
+cancel: "<red>Teleportation cancelled!"
 not-teleporting: "<red>You are not currently in an RTP process."
+
+# Messages can use either a flat value or channel-specific values.
+# A flat value is used for every enabled channel. When chat, actionbar, or
+# title is specified, it overrides only that channel. Title can also define
+# a subtitle. The output channels are still enabled in config.yml under
+# messages-toggle.
+# Here is a full example:
+# tp-success:
+#   chat: "<gray>Teleportation successful!"
+#   actionbar: "<green>Teleported!"
+#   title:
+#     text: "<green>Success!"
+#     subtitle: "<gray>You have been teleported."

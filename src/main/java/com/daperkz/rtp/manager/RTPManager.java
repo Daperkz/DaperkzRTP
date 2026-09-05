@@ -64,30 +64,30 @@ public class RTPManager {
         }
 
         if (!bounds.enabled()) {
-            player.sendMessage(lang.getPrefixedMessage("world-disabled"));
+            lang.sendNotification(player, "world-disabled");
             return;
         }
 
         if (cd.isOnCooldown(player.getUniqueId(), cfg.getCooldownSeconds())) {
             long remaining = cd.getRemainingCooldown(player.getUniqueId(), cfg.getCooldownSeconds());
-            player.sendMessage(lang.getPrefixedMessage("cooldown", "<time>", String.valueOf(remaining)));
+            lang.sendNotification(player, "cooldown", "<time>", String.valueOf(remaining));
             return;
         }
 
         if (cd.isTeleporting(player.getUniqueId())) {
-            player.sendMessage(lang.getPrefixedMessage("already-teleporting"));
+            lang.sendNotification(player, "already-teleporting");
             return;
         }
 
         World world = Bukkit.getWorld(bounds.worldName());
         if (world == null) {
-            player.sendMessage(lang.getPrefixedMessage("world-not-found"));
+            lang.sendNotification(player, "world-not-found");
             return;
         }
 
         cd.setTeleporting(player.getUniqueId(), true);
 
-        lang.sendNotification(player, "start", "start-warmup", null, "<seconds>", String.valueOf(cfg.getCountdownSeconds()));
+        lang.sendNotification(player, "start-warmup", "<seconds>", String.valueOf(cfg.getCountdownSeconds()));
 
         findSafeLocation(world, bounds, cfg.getMaxAttempts(), 0, player);
     }
@@ -99,7 +99,7 @@ public class RTPManager {
         }
 
         if (currentAttempt >= maxAttempts) {
-            plugin.getLanguageManager().sendNotification(player, "fail", "failed-find-location", null, "<attempts>", String.valueOf(maxAttempts));
+            plugin.getLanguageManager().sendNotification(player, "failed-find-location", "<attempts>", String.valueOf(maxAttempts));
             plugin.getCooldownManager().setTeleporting(player.getUniqueId(), false);
             return;
         }
@@ -249,7 +249,7 @@ public class RTPManager {
         }
 
         if (!player.getWorld().equals(initialLoc.getWorld()) || player.getLocation().distanceSquared(initialLoc) > Math.pow(cfg.getMoveCancelDistance(), 2)) {
-            lang.sendNotification(player, "cancel", "cancel-moved", "cancel-actionbar");
+            lang.sendNotification(player, "cancel-moved");
             if (cancelSound.enabled()) {
                 player.playSound(player.getLocation(), cancelSound.sound(), cancelSound.volume(), cancelSound.pitch());
             }
@@ -264,13 +264,13 @@ public class RTPManager {
                         player.teleportAsync(targetLoc).thenAccept(success -> {
                             try {
                                 if (success) {
-                                    lang.sendNotification(player, "success", "success-message", "success-actionbar");
+                                    lang.sendNotification(player, "tp-success");
                                     if (teleportSound.enabled()) {
                                         player.playSound(player.getLocation(), teleportSound.sound(), teleportSound.volume(), teleportSound.pitch());
                                     }
                                     cd.setCooldown(player.getUniqueId());
                                 } else {
-                                    player.sendMessage(lang.getPrefixedMessage("failed-find-location", "<attempts>", "1"));
+                                    lang.sendNotification(player, "teleport-failed");
                                 }
                             } finally {
                                 cd.setTeleporting(player.getUniqueId(), false);
@@ -287,7 +287,7 @@ public class RTPManager {
             return;
         }
 
-        lang.sendNotification(player, "warmup", null, "warmup-actionbar", "<seconds>", String.valueOf(countdown));
+        lang.sendNotification(player, "warmup", "<seconds>", String.valueOf(countdown));
 
         if (countSound.enabled()) {
             float currentPitch = countSound.pitch();

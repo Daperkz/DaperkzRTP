@@ -54,7 +54,7 @@ sounds:
     sound: "BLOCK_NOTE_BLOCK_HARP"
     volume: 1.0
     pitch-increase: true
-    base-pitch: 1.0
+    pitch: 1.0
   cancel-moved:
     enabled: true
     sound: "ENTITY_ITEM_BREAK"
@@ -70,7 +70,7 @@ sounds:
 # INTERFACE CONFIGURATION
 # --------------------------------------------------
 gui:
-  title: "<blue><b>RANDOM TELEPORT</b></blue>"
+  title: "<b>RANDOM TELEPORT</b>"
   rows: 3
   fill-empty: false
   fill-item: GRAY_STAINED_GLASS_PANE
@@ -102,8 +102,19 @@ gui:
 # Available channels: CHAT, ACTIONBAR, TITLE, NONE, ALL
 # --------------------------------------------------
 messages-toggle:
-  start: ["CHAT"]
+  unknown-world: ["CHAT"]
+  world-not-found: ["CHAT"]
+  world-disabled: ["CHAT"]
+  already-teleporting: ["CHAT"]
+  cooldown: ["CHAT"]
+  start-warmup: ["CHAT"]
   warmup: ["ACTIONBAR"]
-  success: ["CHAT", "ACTIONBAR"]
-  fail: ["CHAT"]
+  cancel-moved: ["CHAT"]
+  tp-success: ["CHAT", "ACTIONBAR"]
+  failed-find-location: ["CHAT"]
+  teleport-failed: ["CHAT"]
+  no-permission: ["CHAT"]
+  player-only: ["CHAT"]
+  reload: ["CHAT"]
   cancel: ["CHAT"]
+  not-teleporting: ["CHAT"]

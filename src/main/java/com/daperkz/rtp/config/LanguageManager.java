@@ -11,6 +11,7 @@ package com.daperkz.rtp.config;
 import com.daperkz.rtp.RTPPlugin;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.title.Title;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
@@ -63,7 +64,7 @@ public class LanguageManager {
      */
     public Component getPrefixedMessage(String key) {
         String prefix = messagesConfig.getString("prefix", "");
-        String msg = messagesConfig.getString(key, "");
+        String msg = getChannelMessage(key, "chat");
         return miniMessage.deserialize(prefix + msg);
     }
 
@@ -72,40 +73,72 @@ public class LanguageManager {
      */
     public Component getPrefixedMessage(String key, String target, String replacement) {
         String prefix = messagesConfig.getString("prefix", "");
-        String msg = messagesConfig.getString(key, "").replace(target, replacement);
+        String msg = getChannelMessage(key, "chat").replace(target, replacement);
         return miniMessage.deserialize(prefix + msg);
     }
 
     public Component getMessage(String key) {
-        String msg = messagesConfig.getString(key, "");
+        String msg = getChannelMessage(key, "chat");
         return miniMessage.deserialize(msg);
     }
 
     public String getRawMessage(String key) {
-        return messagesConfig.getString(key, "");
+        return getChannelMessage(key, "chat");
     }
 
-    public void sendNotification(Player player, String toggleKey, String chatKey, String actionbarKey, String placeholderTarget, String replacement) {
-        ConfigManager.MessageToggle toggle = plugin.getConfigManager().getMessageToggle(toggleKey);
+    public void sendNotification(Player player, String key, String placeholderTarget, String replacement) {
+        ConfigManager.MessageToggle toggle = plugin.getConfigManager().getMessageToggle(key);
 
-        if (toggle.allowsChat() && chatKey != null && !chatKey.isEmpty()) {
+        if (toggle.allowsChat()) {
             if (placeholderTarget != null && replacement != null) {
-                player.sendMessage(getPrefixedMessage(chatKey, placeholderTarget, replacement));
+                player.sendMessage(getPrefixedMessage(key, placeholderTarget, replacement));
             } else {
-                player.sendMessage(getPrefixedMessage(chatKey));
+                player.sendMessage(getPrefixedMessage(key));
             }
         }
 
-        if (toggle.allowsActionbar() && actionbarKey != null && !actionbarKey.isEmpty()) {
-            String raw = getRawMessage(actionbarKey);
-            if (placeholderTarget != null && replacement != null) {
-                raw = raw.replace(placeholderTarget, replacement);
-            }
+        if (toggle.allowsActionbar()) {
+            String raw = getMessageForChannel(key, "actionbar", placeholderTarget, replacement);
             player.sendActionBar(miniMessage.deserialize(raw));
         }
+
+        if (toggle.allowsTitle()) {
+            String title = getMessageForChannel(key, "title", placeholderTarget, replacement);
+            String subtitle = getOptionalMessage(key + ".title.subtitle", placeholderTarget, replacement);
+            player.showTitle(Title.title(miniMessage.deserialize(title), miniMessage.deserialize(subtitle)));
+        }
     }
 
-    public void sendNotification(Player player, String toggleKey, String chatKey, String actionbarKey) {
-        sendNotification(player, toggleKey, chatKey, actionbarKey, null, null);
+    public void sendNotification(Player player, String key) {
+        sendNotification(player, key, null, null);
+    }
+
+    private String getMessageForChannel(String key, String channel, String placeholderTarget, String replacement) {
+        String raw = getChannelMessage(key, channel);
+        if (placeholderTarget != null && replacement != null) {
+            raw = raw.replace(placeholderTarget, replacement);
+        }
+        return raw;
+    }
+
+    private String getOptionalMessage(String path, String placeholderTarget, String replacement) {
+        String raw = messagesConfig.isString(path) ? messagesConfig.getString(path, "") : "";
+        if (placeholderTarget != null && replacement != null) {
+            raw = raw.replace(placeholderTarget, replacement);
+        }
+        return raw;
+    }
+
+    private String getChannelMessage(String key, String channel) {
+        String channelPath = key + "." + channel;
+        if (messagesConfig.isString(channelPath)) {
+            return messagesConfig.getString(channelPath, "");
+        }
+
+        if ("title".equals(channel) && messagesConfig.isString(key + ".title.text")) {
+            return messagesConfig.getString(key + ".title.text", "");
+        }
+
+        return messagesConfig.getString(key, "");
     }
 }

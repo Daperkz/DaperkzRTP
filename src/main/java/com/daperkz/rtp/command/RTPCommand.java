@@ -36,16 +36,16 @@ public class RTPCommand implements CommandExecutor, TabCompleter {
 
         if (args.length > 0 && args[0].equalsIgnoreCase("reload")) {
             if (!sender.hasPermission("Daperkz.rtp.admin")) {
-                sender.sendMessage(plugin.getLanguageManager().getPrefixedMessage("no-permission"));
+                sendConfiguredMessage(sender, "no-permission");
                 return true;
             }
             plugin.reloadPluginConfig();
-            sender.sendMessage(plugin.getLanguageManager().getPrefixedMessage("reload-success"));
+            sendConfiguredMessage(sender, "reload");
             return true;
         }
 
         if (!(sender instanceof Player player)) {
-            sender.sendMessage("Seul un joueur peut exécuter cette commande.");
+            sendConfiguredMessage(sender, "player-only");
             return true;
         }
 
@@ -57,9 +57,9 @@ public class RTPCommand implements CommandExecutor, TabCompleter {
         if (args[0].equalsIgnoreCase("cancel")) {
             boolean cancelled = plugin.getRTPManager().cancelRTP(player);
             if (cancelled) {
-                player.sendMessage(plugin.getLanguageManager().getPrefixedMessage("cancel-success"));
+                plugin.getLanguageManager().sendNotification(player, "cancel");
             } else {
-                player.sendMessage(plugin.getLanguageManager().getPrefixedMessage("not-teleporting"));
+                plugin.getLanguageManager().sendNotification(player, "not-teleporting");
             }
             return true;
         }
@@ -73,12 +73,20 @@ public class RTPCommand implements CommandExecutor, TabCompleter {
         };
 
         if (bounds == null) {
-            player.sendMessage(plugin.getLanguageManager().getPrefixedMessage("unknown-world"));
+            plugin.getLanguageManager().sendNotification(player, "unknown-world");
             return true;
         }
 
         plugin.getRTPManager().processRTP(player, bounds);
         return true;
+    }
+
+    private void sendConfiguredMessage(CommandSender sender, String messageKey) {
+        if (sender instanceof Player player) {
+            plugin.getLanguageManager().sendNotification(player, messageKey);
+        } else {
+            sender.sendMessage(plugin.getLanguageManager().getPrefixedMessage(messageKey));
+        }
     }
 
     @Override
